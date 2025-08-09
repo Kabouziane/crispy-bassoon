@@ -61,23 +61,34 @@ export const useNotesStore = defineStore('notes', {
     },
 
     connectWebSocket(noteId: number) {
-      const token = localStorage.getItem('access_token')
-      this.socket = new WebSocket(`ws://localhost:8000/ws/notes/${noteId}/?token=${token}`)
+      this.socket = new WebSocket(`ws://127.0.0.1:8000/ws/notes/${noteId}/`)
+      
+      this.socket.onopen = () => {
+        console.log('WebSocket connected for note', noteId)
+      }
       
       this.socket.onmessage = (event) => {
         const data = JSON.parse(event.data)
+        console.log('WebSocket message:', data)
+        
         if (data.type === 'note_update' && this.currentNote) {
           this.currentNote.content = data.content
         }
       }
+      
+      this.socket.onerror = (error) => {
+        console.error('WebSocket error:', error)
+      }
     },
 
     sendUpdate(content: string) {
-      if (this.socket) {
+      if (this.socket && this.socket.readyState === WebSocket.OPEN) {
         this.socket.send(JSON.stringify({
           type: 'note_update',
-          content
+          content,
+          user_id: 2  // ID de karim pour test
         }))
+        console.log('Sent update:', content.substring(0, 50) + '...')
       }
     },
 

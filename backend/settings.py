@@ -162,12 +162,9 @@ CORS_ALLOWED_HEADERS = [
     'x-requested-with',
 ]
 
-# Channels
+# Channels - Use in-memory for development (no Redis required)
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }

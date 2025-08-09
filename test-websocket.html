@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test WebSocket</title>
+</head>
+<body>
+    <h1>Test WebSocket Notes</h1>
+    <div>
+        <input type="text" id="noteId" placeholder="Note ID" value="1">
+        <button onclick="connect()">Connect</button>
+        <button onclick="disconnect()">Disconnect</button>
+    </div>
+    <div>
+        <textarea id="content" placeholder="Contenu de la note" rows="5" cols="50"></textarea>
+        <button onclick="sendUpdate()">Send Update</button>
+    </div>
+    <div id="log"></div>
+
+    <script>
+        let socket = null;
+
+        function log(message) {
+            document.getElementById('log').innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + message + '</div>';
+        }
+
+        function connect() {
+            const noteId = document.getElementById('noteId').value;
+            socket = new WebSocket(`ws://127.0.0.1:8000/ws/notes/${noteId}/`);
+            
+            socket.onopen = function() {
+                log('Connected to note ' + noteId);
+            };
+            
+            socket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                log('Received: ' + JSON.stringify(data));
+                
+                if (data.type === 'note_update') {
+                    document.getElementById('content').value = data.content;
+                }
+            };
+            
+            socket.onerror = function(error) {
+                log('Error: ' + error);
+            };
+            
+            socket.onclose = function() {
+                log('Disconnected');
+            };
+        }
+
+        function disconnect() {
+            if (socket) {
+                socket.close();
+            }
+        }
+
+        function sendUpdate() {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                const content = document.getElementById('content').value;
+                socket.send(JSON.stringify({
+                    type: 'note_update',
+                    content: content,
+                    user_id: 2
+                }));
+                log('Sent: ' + content.substring(0, 30) + '...');
+            } else {
+                log('Not connected');
+            }
+        }
+    </script>
+</body>
+</html>
