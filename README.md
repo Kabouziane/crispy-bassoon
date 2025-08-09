@@ -86,11 +86,11 @@ start.bat
 ## Technologies
 
 **Backend:**
-- Django 4.2
-- Django REST Framework
-- Django Channels
-- Redis
-- JWT
+- Django 5.2.5
+- Django REST Framework 3.16.1
+- Django Channels 4.3.1
+- Redis 6.4.0
+- JWT 5.5.1
 
 **Frontend:**
 - Vue.js 3
